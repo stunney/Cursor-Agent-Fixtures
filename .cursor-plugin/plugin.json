@@ -1,0 +1,11 @@
+{
+  "name": "agent-fixtures",
+  "displayName": "Agent Fixtures",
+  "version": "0.1.0",
+  "description": "Deterministic setup and teardown fixtures at agent workflow lifecycle stages, configured per project from .cursor/extensions/agent-fixtures/",
+  "author": {
+    "name": "Agent Fixtures"
+  },
+  "license": "MIT",
+  "keywords": ["cursor", "plugin", "hooks", "mcp", "fixtures", "agent", "workflow"]
+}

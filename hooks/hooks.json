@@ -1,0 +1,39 @@
+{
+  "version": 1,
+  "hooks": {
+    "sessionStart": [
+      {
+        "command": "node dist/hook.js"
+      }
+    ],
+    "sessionEnd": [
+      {
+        "command": "node dist/hook.js"
+      }
+    ],
+    "subagentStart": [
+      {
+        "command": "node dist/hook.js",
+        "failClosed": true
+      }
+    ],
+    "subagentStop": [
+      {
+        "command": "node dist/hook.js"
+      }
+    ],
+    "stop": [
+      {
+        "command": "node dist/hook.js",
+        "loop_limit": 5
+      }
+    ],
+    "beforeSubmitPrompt": [
+      {
+        "command": "node dist/hook.js",
+        "matcher": "UserPromptSubmit",
+        "failClosed": true
+      }
+    ]
+  }
+}

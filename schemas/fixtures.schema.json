@@ -1,0 +1,131 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://cursor-agent-fixtures/schemas/fixtures.schema.json",
+  "title": "Agent Fixtures Project Config",
+  "type": "object",
+  "required": ["version", "stages"],
+  "additionalProperties": false,
+  "properties": {
+    "version": {
+      "type": "integer",
+      "const": 1
+    },
+    "ticketPattern": {
+      "type": "string",
+      "description": "Regex pattern to extract ticket references from prompts or branch names"
+    },
+    "parentBranch": {
+      "type": "string",
+      "default": "main"
+    },
+    "dryRun": {
+      "type": "boolean",
+      "default": true,
+      "description": "When true, fixtures log planned actions without executing destructive commands"
+    },
+    "commit": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "allow": {
+          "type": "boolean",
+          "default": false,
+          "description": "Allow commit-pr fixture to run real git commit when dryRun is false"
+        }
+      }
+    },
+    "queue": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "lockTimeoutMs": {
+          "type": "integer",
+          "default": 120000
+        },
+        "pollMs": {
+          "type": "integer",
+          "default": 200
+        }
+      }
+    },
+    "recovery": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "enabled": {
+          "type": "boolean",
+          "default": true
+        },
+        "maxAttempts": {
+          "type": "integer",
+          "default": 5
+        }
+      }
+    },
+    "stages": {
+      "type": "object",
+      "required": [
+        "multiAgentSetup",
+        "agentSetup",
+        "agentTeardown",
+        "multiAgentTeardown"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "multiAgentSetup": {
+          "$ref": "#/$defs/fixtureEntryList"
+        },
+        "agentSetup": {
+          "$ref": "#/$defs/fixtureEntryList"
+        },
+        "agentTeardown": {
+          "$ref": "#/$defs/fixtureEntryList"
+        },
+        "multiAgentTeardown": {
+          "$ref": "#/$defs/fixtureEntryList"
+        }
+      }
+    },
+    "flows": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/fixtureEntry"
+      }
+    }
+  },
+  "$defs": {
+    "fixtureEntryList": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/fixtureEntry"
+      }
+    },
+    "fixtureEntry": {
+      "type": "object",
+      "required": ["id", "run", "process"],
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "run": {
+          "type": "string",
+          "enum": ["always", "on-demand"]
+        },
+        "process": {
+          "type": "string",
+          "enum": ["hook", "agent"]
+        },
+        "script": {
+          "type": "string",
+          "description": "Path relative to .cursor/extensions/agent-fixtures/"
+        },
+        "module": {
+          "type": "string",
+          "description": "Path relative to .cursor/extensions/agent-fixtures/fixtures/"
+        }
+      }
+    }
+  }
+}

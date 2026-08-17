@@ -1,0 +1,34 @@
+{
+  "version": 1,
+  "ticketPattern": "(?:[A-Z]+-\\d+|GH-\\d+)",
+  "parentBranch": "main",
+  "dryRun": true,
+  "commit": {
+    "allow": false
+  },
+  "queue": {
+    "lockTimeoutMs": 120000,
+    "pollMs": 200
+  },
+  "recovery": {
+    "enabled": true,
+    "maxAttempts": 5
+  },
+  "stages": {
+    "multiAgentSetup": [
+      { "id": "ensure-branch", "run": "always", "process": "hook" }
+    ],
+    "agentSetup": [
+      { "id": "copy-plan", "run": "always", "process": "hook" }
+    ],
+    "agentTeardown": [
+      { "id": "run-verify", "run": "always", "process": "hook" }
+    ],
+    "multiAgentTeardown": [
+      { "id": "commit-pr", "run": "always", "process": "hook" }
+    ]
+  },
+  "flows": [
+    { "id": "ensure-branch", "run": "on-demand", "process": "agent" }
+  ]
+}
