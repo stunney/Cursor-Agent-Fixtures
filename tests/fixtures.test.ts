@@ -61,7 +61,7 @@ describe("project-dir discovery", () => {
     assert.equal(isProjectConfigured(ctx!), true);
   });
 
-  it("places runtime state beside the project extension folder", () => {
+  it("places runtime state under the project extension folder", () => {
     const root = makeProject({
       version: 1,
       stages: {
@@ -73,7 +73,7 @@ describe("project-dir discovery", () => {
     });
     const ctx = discoverProjectContext([root])!;
     const stateDir = resolveStateDir(ctx.projectExtensionDir);
-    assert.equal(stateDir, join(root, ".cursor", "extensions", "state"));
+    assert.equal(stateDir, join(ctx.projectExtensionDir, "state"));
   });
 });
 

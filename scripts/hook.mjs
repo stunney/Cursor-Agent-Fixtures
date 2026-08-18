@@ -21,7 +21,7 @@ var init_types = __esm({
 
 // src/project-dir.ts
 import { existsSync } from "node:fs";
-import { dirname, join as join2 } from "node:path";
+import { join as join2 } from "node:path";
 function resolveWorkspaceRoot(workspaceRoots) {
   if (!workspaceRoots?.length) {
     return process.cwd();
@@ -32,7 +32,7 @@ function resolveProjectExtensionDir(workspaceRoot) {
   return join2(workspaceRoot, EXTENSION_FOLDER);
 }
 function resolveStateDir(projectExtensionDir) {
-  return join2(dirname(projectExtensionDir), STATE_DIR);
+  return join2(projectExtensionDir, STATE_DIR);
 }
 function discoverProjectContext(workspaceRoots) {
   const workspaceRoot = resolveWorkspaceRoot(workspaceRoots);
@@ -4924,7 +4924,7 @@ init_project_dir();
 
 // src/runner.ts
 import { existsSync as existsSync6 } from "node:fs";
-import { join as join7, dirname as dirname2 } from "node:path";
+import { join as join7, dirname } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 import { spawnSync as spawnSync4 } from "node:child_process";
 
@@ -5006,7 +5006,7 @@ function getLastStageFailureMessage(state, stage) {
 }
 
 // src/runner.ts
-var __dirname = dirname2(fileURLToPath(import.meta.url));
+var __dirname = dirname(fileURLToPath(import.meta.url));
 var PLUGIN_FIXTURES_DIR = join7(__dirname, "fixtures");
 var BUILTIN_FIXTURES = {
   "ensure-branch": () => Promise.resolve().then(() => (init_ensure_branch(), ensure_branch_exports)),

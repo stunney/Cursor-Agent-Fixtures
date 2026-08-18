@@ -125,5 +125,4 @@ export interface FixtureModule {
 
 export const EXTENSION_FOLDER = ".cursor/extensions/agent-fixtures";
 export const CONFIG_FILE = "config.json";
-/** Runtime state lives beside the project extension folder, not inside it. */
 export const STATE_DIR = "state";

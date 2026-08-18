@@ -1,5 +1,5 @@
 import { existsSync } from "node:fs";
-import { dirname, join } from "node:path";
+import { join } from "node:path";
 import {
   CONFIG_FILE,
   EXTENSION_FOLDER,
@@ -20,7 +20,7 @@ export function resolveProjectExtensionDir(workspaceRoot: string): string {
 }
 
 export function resolveStateDir(projectExtensionDir: string): string {
-  return join(dirname(projectExtensionDir), STATE_DIR);
+  return join(projectExtensionDir, STATE_DIR);
 }
 
 export function discoverProjectContext(
