@@ -3,34 +3,34 @@
   "hooks": {
     "sessionStart": [
       {
-        "command": "node dist/hook.js"
+        "command": "node scripts/hook.mjs"
       }
     ],
     "sessionEnd": [
       {
-        "command": "node dist/hook.js"
+        "command": "node scripts/hook.mjs"
       }
     ],
     "subagentStart": [
       {
-        "command": "node dist/hook.js",
+        "command": "node scripts/hook.mjs",
         "failClosed": true
       }
     ],
     "subagentStop": [
       {
-        "command": "node dist/hook.js"
+        "command": "node scripts/hook.mjs"
       }
     ],
     "stop": [
       {
-        "command": "node dist/hook.js",
+        "command": "node scripts/hook.mjs",
         "loop_limit": 5
       }
     ],
     "beforeSubmitPrompt": [
       {
-        "command": "node dist/hook.js",
+        "command": "node scripts/hook.mjs",
         "matcher": "UserPromptSubmit",
         "failClosed": true
       }

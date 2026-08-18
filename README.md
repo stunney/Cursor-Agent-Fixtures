@@ -4,13 +4,7 @@ Deterministic setup and teardown actions at agent workflow lifecycle stages. Cur
 
 ## Install the plugin
 
-1. Build the plugin:
-
-```bash
-cd cursor-agent-fixtures
-npm install
-npm run build
-```
+1. Clone or copy this repo. Hook and MCP entrypoints are committed under `scripts/` (`hook.mjs`, `mcp-server.mjs`), so copying the repo into Cursor local plugins works without running a build.
 
 2. Copy (do not symlink) the plugin into Cursor local plugins:
 
@@ -27,6 +21,8 @@ cp -R /path/to/cursor-agent-fixtures/* ~/.cursor/plugins/local/agent-fixtures/
 ```
 
 3. Reload Cursor (`Developer: Reload Window`).
+
+After changing TypeScript under `src/`, run `npm run build` (compiles tests to `dist/` and rebundles `scripts/*.mjs`), then recopy the plugin or update your local install.
 
 ## Configure a project
 
@@ -94,7 +90,8 @@ Cloud agents run `subagentStart`, `subagentStop`, `stop`, and other supported ho
 ## Development
 
 ```bash
-npm run build
+npm install
+npm run build   # tsc → dist/ (tests) + esbuild → scripts/*.mjs (hooks/MCP)
 npm test
 ```
 

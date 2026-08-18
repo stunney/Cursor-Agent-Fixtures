@@ -2,7 +2,7 @@
   "mcpServers": {
     "agent-fixtures": {
       "command": "node",
-      "args": ["dist/mcp-server.js"]
+      "args": ["scripts/mcp-server.mjs"]
     }
   }
 }
