@@ -10,6 +10,7 @@ import {
 } from "node:fs";
 import { join } from "node:path";
 import { createHash } from "node:crypto";
+import { resolveStateDir } from "./project-dir.js";
 
 const DEFAULT_LOCK_TIMEOUT_MS = 120_000;
 const DEFAULT_POLL_MS = 200;
@@ -32,7 +33,7 @@ function sanitizeKey(key: string): string {
 }
 
 function queueDir(projectExtensionDir: string): string {
-  const dir = join(projectExtensionDir, "state", "queue");
+  const dir = join(resolveStateDir(projectExtensionDir), "queue");
   mkdirSync(dir, { recursive: true });
   return dir;
 }

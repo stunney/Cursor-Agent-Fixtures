@@ -8,6 +8,65 @@ var __export = (target, all) => {
     __defProp(target, name, { get: all[name], enumerable: true });
 };
 
+// src/types.ts
+var EXTENSION_FOLDER, CONFIG_FILE, STATE_DIR;
+var init_types = __esm({
+  "src/types.ts"() {
+    "use strict";
+    EXTENSION_FOLDER = ".cursor/extensions/agent-fixtures";
+    CONFIG_FILE = "config.json";
+    STATE_DIR = "state";
+  }
+});
+
+// src/project-dir.ts
+import { existsSync } from "node:fs";
+import { join as join2 } from "node:path";
+function resolveWorkspaceRoot(workspaceRoots) {
+  if (!workspaceRoots?.length) {
+    return process.cwd();
+  }
+  return workspaceRoots[0] ?? null;
+}
+function resolveProjectExtensionDir(workspaceRoot) {
+  return join2(workspaceRoot, EXTENSION_FOLDER);
+}
+function resolveStateDir(projectExtensionDir) {
+  return join2(projectExtensionDir, STATE_DIR);
+}
+function discoverProjectContext(workspaceRoots) {
+  const workspaceRoot = resolveWorkspaceRoot(workspaceRoots);
+  if (!workspaceRoot) {
+    return null;
+  }
+  const projectExtensionDir = resolveProjectExtensionDir(workspaceRoot);
+  const configPath = join2(projectExtensionDir, CONFIG_FILE);
+  if (!existsSync(projectExtensionDir) || !existsSync(configPath)) {
+    return {
+      configured: false,
+      workspaceRoot,
+      projectExtensionDir,
+      config: null
+    };
+  }
+  return {
+    configured: true,
+    workspaceRoot,
+    projectExtensionDir,
+    config: null
+  };
+}
+function isProjectConfigured(project) {
+  const configPath = join2(project.projectExtensionDir, CONFIG_FILE);
+  return existsSync(configPath);
+}
+var init_project_dir = __esm({
+  "src/project-dir.ts"() {
+    "use strict";
+    init_types();
+  }
+});
+
 // src/fixtures/ensure-branch.ts
 var ensure_branch_exports = {};
 __export(ensure_branch_exports, {
@@ -197,7 +256,7 @@ function sanitizeKey(key) {
   return createHash("sha256").update(key).digest("hex").slice(0, 24);
 }
 function queueDir(projectExtensionDir) {
-  const dir = join5(projectExtensionDir, "state", "queue");
+  const dir = join5(resolveStateDir(projectExtensionDir), "queue");
   mkdirSync3(dir, { recursive: true });
   return dir;
 }
@@ -315,6 +374,7 @@ var DEFAULT_LOCK_TIMEOUT_MS, DEFAULT_POLL_MS;
 var init_command_queue = __esm({
   "src/command-queue.ts"() {
     "use strict";
+    init_project_dir();
     DEFAULT_LOCK_TIMEOUT_MS = 12e4;
     DEFAULT_POLL_MS = 200;
   }
@@ -4783,12 +4843,8 @@ var coerce = {
 };
 var NEVER = INVALID;
 
-// src/types.ts
-var EXTENSION_FOLDER = ".cursor/extensions/agent-fixtures";
-var CONFIG_FILE = "config.json";
-var STATE_DIR = "state";
-
 // src/config.ts
+init_types();
 var fixtureEntrySchema = external_exports.object({
   id: external_exports.string().min(1),
   run: external_exports.enum(["always", "on-demand"]),
@@ -4863,44 +4919,8 @@ function getOnDemandFlows(config) {
   return config.flows ?? [];
 }
 
-// src/project-dir.ts
-import { existsSync } from "node:fs";
-import { join as join2 } from "node:path";
-function resolveWorkspaceRoot(workspaceRoots) {
-  if (!workspaceRoots?.length) {
-    return process.cwd();
-  }
-  return workspaceRoots[0] ?? null;
-}
-function resolveProjectExtensionDir(workspaceRoot) {
-  return join2(workspaceRoot, EXTENSION_FOLDER);
-}
-function discoverProjectContext(workspaceRoots) {
-  const workspaceRoot = resolveWorkspaceRoot(workspaceRoots);
-  if (!workspaceRoot) {
-    return null;
-  }
-  const projectExtensionDir = resolveProjectExtensionDir(workspaceRoot);
-  const configPath = join2(projectExtensionDir, CONFIG_FILE);
-  if (!existsSync(projectExtensionDir) || !existsSync(configPath)) {
-    return {
-      configured: false,
-      workspaceRoot,
-      projectExtensionDir,
-      config: null
-    };
-  }
-  return {
-    configured: true,
-    workspaceRoot,
-    projectExtensionDir,
-    config: null
-  };
-}
-function isProjectConfigured(project) {
-  const configPath = join2(project.projectExtensionDir, CONFIG_FILE);
-  return existsSync(configPath);
-}
+// src/hook.ts
+init_project_dir();
 
 // src/runner.ts
 import { existsSync as existsSync6 } from "node:fs";
@@ -4909,10 +4929,11 @@ import { fileURLToPath, pathToFileURL } from "node:url";
 import { spawnSync as spawnSync4 } from "node:child_process";
 
 // src/state.ts
+init_project_dir();
 import { mkdirSync, readFileSync as readFileSync2, writeFileSync, existsSync as existsSync2 } from "node:fs";
 import { join as join3 } from "node:path";
 function getStatePath(projectExtensionDir, conversationId) {
-  return join3(projectExtensionDir, STATE_DIR, `${conversationId}.json`);
+  return join3(resolveStateDir(projectExtensionDir), `${conversationId}.json`);
 }
 function loadState(projectExtensionDir, conversationId) {
   const statePath = getStatePath(projectExtensionDir, conversationId);
@@ -4926,7 +4947,7 @@ function loadState(projectExtensionDir, conversationId) {
   }
 }
 function saveState(projectExtensionDir, state) {
-  const stateDir = join3(projectExtensionDir, STATE_DIR);
+  const stateDir = resolveStateDir(projectExtensionDir);
   mkdirSync(stateDir, { recursive: true });
   state.updatedAt = (/* @__PURE__ */ new Date()).toISOString();
   writeFileSync(
