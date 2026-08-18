@@ -85,6 +85,15 @@ All four built-in fixtures run in **dry-run** mode by default (`dryRun: true` in
 
 Override any fixture by adding `.cursor/extensions/agent-fixtures/fixtures/<id>.js` or pointing `script` at a file in `scripts/`.
 
+The project-extension template also calls local scripts on **agent start** and **agent stop**:
+
+| Stage | Cursor hook | Script |
+|---|---|---|
+| Agent Setup | `sessionStart` / `subagentStart` | `scripts/on-agent-start.mjs` |
+| Agent Teardown | `stop` / `subagentStop` | `scripts/on-agent-stop.mjs` |
+
+Those scripts read the hook payload from stdin and, when `dryRun` is false, append to `state/lifecycle.log`. PowerShell variants (`*.ps1`) are in the same folder. See [examples/project-extension/README.md](examples/project-extension/README.md).
+
 ## Cloud agents
 
 Cloud agents run `subagentStart`, `subagentStop`, `stop`, and other supported hooks from project `.cursor/hooks.json`. This plugin's hooks ship with the plugin install. Cloud agents do **not** run `sessionStart` / `sessionEnd`.

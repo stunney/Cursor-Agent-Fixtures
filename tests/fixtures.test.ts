@@ -1,5 +1,6 @@
-import { mkdtempSync, mkdirSync, writeFileSync, rmSync } from "node:fs";
-import { join } from "node:path";
+import { copyFileSync, existsSync, mkdtempSync, mkdirSync, readFileSync, writeFileSync, rmSync } from "node:fs";
+import { dirname, join } from "node:path";
+import { fileURLToPath } from "node:url";
 import { tmpdir } from "node:os";
 import { strict as assert } from "node:assert";
 import { describe, it, afterEach } from "node:test";
@@ -20,6 +21,8 @@ import ensureBranchFixture from "../src/fixtures/ensure-branch.js";
 import type { FixtureContext, FixturesConfig } from "../src/types.js";
 
 const tempDirs: string[] = [];
+const REPO_ROOT = join(dirname(fileURLToPath(import.meta.url)), "..", "..");
+const EXAMPLE_SCRIPTS = join(REPO_ROOT, "examples", "project-extension", "scripts");
 
 function makeProject(config: Record<string, unknown>): string {
   const root = mkdtempSync(join(tmpdir(), "agent-fixtures-test-"));
@@ -28,6 +31,18 @@ function makeProject(config: Record<string, unknown>): string {
   mkdirSync(extDir, { recursive: true });
   writeFileSync(join(extDir, "config.json"), JSON.stringify(config, null, 2));
   return root;
+}
+
+function copyExampleLifecycleScripts(extDir: string): void {
+  mkdirSync(join(extDir, "scripts"), { recursive: true });
+  copyFileSync(
+    join(EXAMPLE_SCRIPTS, "on-agent-start.mjs"),
+    join(extDir, "scripts", "on-agent-start.mjs"),
+  );
+  copyFileSync(
+    join(EXAMPLE_SCRIPTS, "on-agent-stop.mjs"),
+    join(extDir, "scripts", "on-agent-stop.mjs"),
+  );
 }
 
 afterEach(() => {
@@ -160,6 +175,114 @@ describe("ensure-branch stub", () => {
 });
 
 describe("runner stage execution", () => {
+  it("calls local scripts on agent setup and teardown", async () => {
+    const root = makeProject({
+      version: 1,
+      dryRun: true,
+      stages: {
+        multiAgentSetup: [],
+        agentSetup: [
+          {
+            id: "on-agent-start",
+            run: "always",
+            process: "hook",
+            script: "scripts/on-agent-start.mjs",
+          },
+        ],
+        agentTeardown: [
+          {
+            id: "on-agent-stop",
+            run: "always",
+            process: "hook",
+            script: "scripts/on-agent-stop.mjs",
+          },
+        ],
+        multiAgentTeardown: [],
+      },
+    });
+    const extDir = join(root, ".cursor", "extensions", "agent-fixtures");
+    copyExampleLifecycleScripts(extDir);
+
+    const project = discoverProjectContext([root])!;
+    const config = loadProjectConfig(project);
+    const state = loadState(project.projectExtensionDir, "conv-script");
+
+    const start = await runStage(project, config, state, "agentSetup", {
+      hook_event_name: "subagentStart",
+      conversation_id: "conv-script",
+      subagent_id: "sa-1",
+      subagent_type: "explore",
+    });
+    assert.equal(start.success, true);
+    assert.equal(start.results.length, 1);
+    assert.match(start.results[0]!.stdout, /\[on-agent-start\] event=subagentStart/);
+
+    const stop = await runStage(project, config, state, "agentTeardown", {
+      hook_event_name: "subagentStop",
+      conversation_id: "conv-script",
+      subagent_id: "sa-1",
+      subagent_type: "explore",
+      status: "completed",
+    });
+    assert.equal(stop.success, true);
+    assert.equal(stop.results.length, 1);
+    assert.match(stop.results[0]!.stdout, /\[on-agent-stop\] event=subagentStop status=completed/);
+    assert.match(start.results[0]!.stdout, /Would append this start event/);
+    assert.match(stop.results[0]!.stdout, /Would append this stop event/);
+    assert.equal(existsSync(join(extDir, "state", "lifecycle.log")), false);
+  });
+
+  it("writes lifecycle.log from start and stop scripts when dryRun is false", async () => {
+    const root = makeProject({
+      version: 1,
+      dryRun: false,
+      stages: {
+        multiAgentSetup: [],
+        agentSetup: [
+          {
+            id: "on-agent-start",
+            run: "always",
+            process: "hook",
+            script: "scripts/on-agent-start.mjs",
+          },
+        ],
+        agentTeardown: [
+          {
+            id: "on-agent-stop",
+            run: "always",
+            process: "hook",
+            script: "scripts/on-agent-stop.mjs",
+          },
+        ],
+        multiAgentTeardown: [],
+      },
+    });
+    const extDir = join(root, ".cursor", "extensions", "agent-fixtures");
+    copyExampleLifecycleScripts(extDir);
+
+    const project = discoverProjectContext([root])!;
+    const config = loadProjectConfig(project);
+    const state = loadState(project.projectExtensionDir, "conv-live");
+
+    const start = await runStage(project, config, state, "agentSetup", {
+      hook_event_name: "sessionStart",
+      conversation_id: "conv-live",
+    });
+    const stop = await runStage(project, config, state, "agentTeardown", {
+      hook_event_name: "stop",
+      conversation_id: "conv-live",
+      status: "completed",
+      modified_files: ["src/hook.ts"],
+    });
+
+    assert.equal(start.success, true);
+    assert.equal(stop.success, true);
+    const log = readFileSync(join(extDir, "state", "lifecycle.log"), "utf8");
+    assert.match(log, /\[on-agent-start\] event=sessionStart/);
+    assert.match(log, /\[on-agent-stop\] event=stop status=completed/);
+    assert.match(log, /modifiedFiles=1/);
+  });
+
   it("executes multiAgentSetup fixtures in dry-run", async () => {
     const root = makeProject({
       version: 1,

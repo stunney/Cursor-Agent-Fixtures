@@ -19,10 +19,12 @@
       { "id": "ensure-branch", "run": "always", "process": "hook" }
     ],
     "agentSetup": [
-      { "id": "copy-plan", "run": "always", "process": "hook" }
+      { "id": "copy-plan", "run": "always", "process": "hook" },
+      { "id": "on-agent-start", "run": "always", "process": "hook", "script": "scripts/on-agent-start.mjs" }
     ],
     "agentTeardown": [
-      { "id": "run-verify", "run": "always", "process": "hook" }
+      { "id": "run-verify", "run": "always", "process": "hook" },
+      { "id": "on-agent-stop", "run": "always", "process": "hook", "script": "scripts/on-agent-stop.mjs" }
     ],
     "multiAgentTeardown": [
       { "id": "commit-pr", "run": "always", "process": "hook" }
