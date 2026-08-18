@@ -4,8 +4,10 @@
   "version": "0.1.0",
   "description": "Deterministic setup and teardown fixtures at agent workflow lifecycle stages, configured per project from .cursor/extensions/agent-fixtures/",
   "author": {
-    "name": "Agent Fixtures"
+    "name": "Stephen Tunney"
   },
+  "homepage": "https://github.com/stunney/Cursor-Agent-Fixtures",
+  "repository": "https://github.com/stunney/Cursor-Agent-Fixtures",
   "license": "MIT",
   "keywords": ["cursor", "plugin", "hooks", "mcp", "fixtures", "agent", "workflow"]
 }

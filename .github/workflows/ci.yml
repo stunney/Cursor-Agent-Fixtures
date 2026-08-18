@@ -1,0 +1,51 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build and test
+        run: npm test
+
+      - name: Verify bundled scripts are committed
+        run: git diff --exit-code -- scripts/
+
+  release:
+    needs: test
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Create GitHub Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          VERSION=$(node -p "JSON.parse(require('fs').readFileSync('.cursor-plugin/plugin.json','utf8')).version")
+          TAG="v${VERSION}"
+          if gh release view "$TAG" >/dev/null 2>&1; then
+            echo "Release $TAG already exists; bump version in .cursor-plugin/plugin.json to publish a new snapshot."
+            exit 0
+          fi
+          gh release create "$TAG" \
+            --title "Agent Fixtures $TAG" \
+            --generate-notes \
+            --verify-tag

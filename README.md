@@ -1,5 +1,7 @@
 # Agent Fixtures
 
+[![CI](https://github.com/stunney/Cursor-Agent-Fixtures/actions/workflows/ci.yml/badge.svg)](https://github.com/stunney/Cursor-Agent-Fixtures/actions/workflows/ci.yml)
+
 Deterministic setup and teardown actions at agent workflow lifecycle stages. Cursor rules are advisory; these fixtures run real code with defined config, exit codes, and recorded state.
 
 ## Install the plugin
@@ -94,6 +96,25 @@ npm install
 npm run build   # tsc → dist/ (tests) + esbuild → scripts/*.mjs (hooks/MCP)
 npm test
 ```
+
+## Release and marketplace
+
+CI runs on every pull request and on pushes to `main` using free GitHub-hosted runners (`ubuntu-latest`). After a successful `main` build, CI creates a GitHub Release tagged `v{version}` from [`.cursor-plugin/plugin.json`](.cursor-plugin/plugin.json) when that tag does not exist yet. Bump the version in both `plugin.json` and `package.json` before merging to ship a new release snapshot.
+
+### Public Cursor Marketplace
+
+Cursor’s public marketplace is a curated, git-based listing with manual review — there is no publish API or publisher token.
+
+1. Submit this repository once at [cursor.com/marketplace/publish](https://cursor.com/marketplace/publish).
+2. Each new release on `main` is the snapshot Cursor re-reviews before updating the listing.
+
+### Team Marketplace
+
+For private distribution within a Cursor Teams or Enterprise org:
+
+1. In **Dashboard → Plugins → Team Marketplaces**, choose **Import from Repo** and paste `https://github.com/stunney/Cursor-Agent-Fixtures`.
+2. Install the [Cursor GitHub App](https://cursor.com/docs/integrations/github) on this repository.
+3. Enable **Auto Refresh** so pushes to `main` re-index the plugin (at most once every 10 minutes).
 
 ## License
 
