@@ -1,13 +1,13 @@
 import { mkdirSync, readFileSync, writeFileSync, existsSync } from "node:fs";
 import { join } from "node:path";
-import { STATE_DIR } from "./types.js";
+import { resolveStateDir } from "./project-dir.js";
 import type { ConversationState, FixtureStage, StageState } from "./types.js";
 
 export function getStatePath(
   projectExtensionDir: string,
   conversationId: string,
 ): string {
-  return join(projectExtensionDir, STATE_DIR, `${conversationId}.json`);
+  return join(resolveStateDir(projectExtensionDir), `${conversationId}.json`);
 }
 
 export function loadState(
@@ -29,7 +29,7 @@ export function saveState(
   projectExtensionDir: string,
   state: ConversationState,
 ): void {
-  const stateDir = join(projectExtensionDir, STATE_DIR);
+  const stateDir = resolveStateDir(projectExtensionDir);
   mkdirSync(stateDir, { recursive: true });
   state.updatedAt = new Date().toISOString();
   writeFileSync(
