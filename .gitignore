@@ -4,3 +4,4 @@ src/**/*.js
 tests/**/*.js
 *.log
 .DS_Store
+.cursor/extensions/state/

@@ -110,9 +110,10 @@ describe("verify deduplication", () => {
 
 describe("command queue", () => {
   it("serializes concurrent command execution", async () => {
-    const extDir = mkdtempSync(join(tmpdir(), "agent-fixtures-queue-"));
-    tempDirs.push(extDir);
-    mkdirSync(join(extDir, "state"), { recursive: true });
+    const root = mkdtempSync(join(tmpdir(), "agent-fixtures-queue-"));
+    tempDirs.push(root);
+    const extDir = join(root, "agent-fixtures");
+    mkdirSync(extDir, { recursive: true });
 
     let active = 0;
     let maxActive = 0;

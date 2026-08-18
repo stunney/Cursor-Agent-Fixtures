@@ -1,8 +1,9 @@
 import { existsSync } from "node:fs";
-import { join } from "node:path";
+import { dirname, join } from "node:path";
 import {
   CONFIG_FILE,
   EXTENSION_FOLDER,
+  STATE_DIR,
   type FixturesConfig,
   type ProjectContext,
 } from "./types.js";
@@ -16,6 +17,10 @@ export function resolveWorkspaceRoot(workspaceRoots?: string[]): string | null {
 
 export function resolveProjectExtensionDir(workspaceRoot: string): string {
   return join(workspaceRoot, EXTENSION_FOLDER);
+}
+
+export function resolveStateDir(projectExtensionDir: string): string {
+  return join(dirname(projectExtensionDir), STATE_DIR);
 }
 
 export function discoverProjectContext(

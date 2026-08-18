@@ -3,7 +3,11 @@ import { join } from "node:path";
 import { tmpdir } from "node:os";
 import { strict as assert } from "node:assert";
 import { describe, it, afterEach } from "node:test";
-import { discoverProjectContext, isProjectConfigured } from "../src/project-dir.js";
+import {
+  discoverProjectContext,
+  isProjectConfigured,
+  resolveStateDir,
+} from "../src/project-dir.js";
 import { loadProjectConfig, getStageEntries } from "../src/config.js";
 import { getStagesForHook, isGateHook } from "../src/stages.js";
 import {
@@ -55,6 +59,21 @@ describe("project-dir discovery", () => {
     const ctx = discoverProjectContext([root]);
     assert.ok(ctx);
     assert.equal(isProjectConfigured(ctx!), true);
+  });
+
+  it("places runtime state beside the project extension folder", () => {
+    const root = makeProject({
+      version: 1,
+      stages: {
+        multiAgentSetup: [],
+        agentSetup: [],
+        agentTeardown: [],
+        multiAgentTeardown: [],
+      },
+    });
+    const ctx = discoverProjectContext([root])!;
+    const stateDir = resolveStateDir(ctx.projectExtensionDir);
+    assert.equal(stateDir, join(root, ".cursor", "extensions", "state"));
   });
 });
 

@@ -32,15 +32,18 @@ Copy the project extension template into your repo:
 
 ```text
 examples/project-extension/  →  .cursor/extensions/agent-fixtures/
+examples/.gitignore          →  .cursor/extensions/.gitignore
 ```
 
 Your project should contain:
 
 ```text
-.cursor/extensions/agent-fixtures/
-├── config.json       # required
-├── fixtures/         # optional overrides
-├── scripts/          # optional scripts
+.cursor/extensions/
+├── .gitignore        # ignores sibling state/
+├── agent-fixtures/
+│   ├── config.json   # required
+│   ├── fixtures/     # optional overrides
+│   └── scripts/      # optional scripts
 └── state/            # runtime (gitignored)
 ```
 
@@ -61,7 +64,7 @@ If this folder or `config.json` is missing, the plugin no-ops and does not modif
 
 When several agents touch the same repo:
 
-- **Queue**: identical commands for the same conversation + project root are serialized via a file lock in `.cursor/extensions/agent-fixtures/state/queue/`. Agents wait their turn instead of running `npm run build` simultaneously.
+- **Queue**: identical commands for the same conversation + project root are serialized via a file lock in `.cursor/extensions/state/queue/`. Agents wait their turn instead of running `npm run build` simultaneously.
 - **Deduplication**: `run-verify` detects standalone project roots (`package.json`, `pyproject.toml`, `.sln`) from `modified_files`. For each root it runs build/test **once** per command unless new files in that root were modified since the last successful verify.
 - **Recovery**: when a fixture fails, the `stop` / `subagentStop` hook returns a `followup_message` instructing the agent to fix the failure immediately in the same conversation (no user prompt required). Retries respect `recovery.maxAttempts` and the hook `loop_limit`.
 
